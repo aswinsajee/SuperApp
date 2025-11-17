@@ -1,0 +1,47 @@
+﻿@inject NavigationManager Navigation
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">SuperApp UI</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Home" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        @if (IsOnLoginPage)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="SignIn">
+                    <span class="oi oi-plus"></span> Register
+                </NavLink>
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    // ✅ Check if current page is the login/start page
+    private bool IsOnLoginPage =>
+        Navigation.Uri.Equals(Navigation.BaseUri, StringComparison.OrdinalIgnoreCase) ||
+        Navigation.Uri.EndsWith("/", StringComparison.OrdinalIgnoreCase)||
+        Navigation.Uri.Contains("/Login", StringComparison.OrdinalIgnoreCase);
+
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

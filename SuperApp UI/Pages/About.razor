@@ -1,0 +1,85 @@
+﻿@page "/about"
+@using SuperApp_UI.Models
+
+<div class="about-section text-white d-flex flex-column align-items-center justify-content-center min-vh-100">
+    <div class="container text-center py-5">
+
+        <!-- Hero Section -->
+        <h1 class="fw-bold mb-3">About <span class="text-gradient">SuperApp</span></h1>
+        <p class="lead text-light mb-5">
+            We’re passionate about innovation and creating digital experiences that simplify your life.
+        </p>
+
+        <!-- Mission Section -->
+        <div class="row align-items-center mb-5">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <img src="https://cdn.pixabay.com/photo/2016/11/29/01/11/analysis-1868728_1280.jpg"
+                     alt="Our Mission" class="img-fluid rounded-4 shadow-lg mission-img">
+            </div>
+            <div class="col-md-6 text-start">
+                <h3 class="fw-semibold mb-3">Our Mission</h3>
+                <p class="text-light fs-5">
+                    Our mission is to empower people through technology — creating tools that help
+                    you connect, organize, and achieve more. We’re not just building software,
+                    we’re shaping the future of digital experience.
+                </p>
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="values py-4">
+            <h3 class="fw-semibold mb-4">Our Core Values</h3>
+            <div class="row">
+                @foreach (var value in values)
+                {
+                    <div class="col-sm-12 col-md-4 mb-4">
+                        <div class="card value-card h-100 shadow-sm border-0 text-dark">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold text-gradient">@value.Title</h5>
+                                <p class="card-text">@value.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="team mt-5">
+            <h3 class="fw-semibold mb-4">Meet Our Team</h3>
+            <div class="row justify-content-center">
+                @foreach (var member in team)
+                {
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="team-card p-3 rounded-4 shadow-sm">
+                            <img src="@member.ImageUrl" alt="@member.Name" class="rounded-circle mb-3 shadow" width="100" height="100">
+                            <h6 class="fw-bold">@member.Name</h6>
+                            <p class="text-light mb-0">@member.Role</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@code {
+    private List<ValueCard> values = new()
+    {
+        new ValueCard { Title = "Innovation", Description = "We constantly explore new ideas and technologies to stay ahead." },
+        new ValueCard { Title = "Integrity", Description = "We value transparency, honesty, and strong ethics in everything we do." },
+        new ValueCard { Title = "Excellence", Description = "We strive to deliver the best products and experiences for our users." }
+    };
+
+    private List<TeamMember> team = new()
+    {
+        new TeamMember { Name = "Aswin Sajeev", Role = "Software Developer", ImageUrl = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" },
+        new TeamMember { Name = "Kannus", Role = "UI/UX Designer", ImageUrl = "https://cdn-icons-png.flaticon.com/512/4140/4140048.png" },
+        new TeamMember { Name = "Alex", Role = "Product Manager", ImageUrl = "https://cdn-icons-png.flaticon.com/512/236/236831.png" },
+    };
+
+ 
+}
+
+

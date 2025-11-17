@@ -1,0 +1,97 @@
+﻿@page "/"
+@page "/Login"
+@using Blazored.LocalStorage
+@using SuperApp_UI.Models
+@using SuperApp_UI.Services
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JS
+
+<div class="login-container">
+    <div class="login-card shadow-lg">
+        <h2 class="text-center mb-4">Welcome Back 👋</h2>
+
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group mb-3">
+                <label for="username">Email</label>
+                <InputText id="username" @bind-Value="loginModel.UserName" class="form-control" placeholder="Enter your email" />
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="password">Password</label>
+                <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" placeholder="Enter your password" />
+            </div>
+
+            <button class="btn btn-primary w-100 py-2" type="submit">Login</button>
+        </EditForm>
+
+        <div class="text-center mt-4">
+            <p>Don't have an account? <NavLink href="/SignIn">Register</NavLink></p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginDTO loginModel = new();
+    private string? UserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        loginModel = new LoginDTO
+            {
+                UserName = string.Empty,
+                Password = string.Empty
+            };
+        await LocalStorage.RemoveItemAsync("jwtToken");
+        await LocalStorage.RemoveItemAsync("userId");
+        await LocalStorage.RemoveItemAsync("UserId");
+        await LocalStorage.RemoveItemAsync("ActiveSubUserId");
+        await LocalStorage.RemoveItemAsync("ActiveSubUserName");
+    }
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            await LocalStorage.RemoveItemAsync("jwtToken");
+            await LocalStorage.RemoveItemAsync("userId");
+
+            var response = await Http.PostAsJsonAsync("https://localhost:7196/api/Auth/Login", loginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
+
+                if (result != null)
+                {
+                    await LocalStorage.SetItemAsStringAsync("jwtToken", result.Token);
+                    await LocalStorage.SetItemAsStringAsync("userId", result.UserId.ToString());
+                    UserId = await LocalStorage.GetItemAsync<string>("userId");
+
+                    if (AuthenticationStateProvider is CustomAuthStateProvider customProvider)
+                    {
+                        await customProvider.MarkUserAsAuthenticatedAsync(result.Token);
+                    }
+
+                    await JS.InvokeVoidAsync("showPopup", "Login successful 🎉. Enjoy Streaming", "success");
+                    await Task.Delay(1000);
+                    Navigation.NavigateTo($"/SubUsers/{UserId}", true);
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                await JS.InvokeVoidAsync("showPopup", $"Login failed: {error}", "error");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("showPopup", $"Error: {ex.Message}", "error");
+        }
+    }
+}
