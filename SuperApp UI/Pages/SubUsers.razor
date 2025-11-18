@@ -1,0 +1,236 @@
+﻿@page "/SubUsers/{UserId:guid}"
+@using SuperApp_UI.Models
+@inject HttpClient Http
+@using System.Net.Http.Json
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject NavigationManager NavManager
+@inject SuperApp_UI.Services.UserStateService UserState
+
+
+<h2 class="text-center mb-4 fw-bold">Profiles</h2>
+
+
+@if (!isSubscribed)
+{
+    <div class="hero">
+        <strong>⚠️ You are not subscribed to any plan.</strong><br />
+        Please subscribe to a plan before adding new profile.
+        <div class="hero-content">
+            <h1>All your favorite OTTs.<br />One simple subscription.</h1>
+            <button class="cta-button" @onclick="Getstarted">Purchase a plan →</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex flex-wrap justify-content-center gap-4 mt-4">
+        @if (selectedSubUser != null)
+        {
+            <!-- 🔹 Show ONLY the selected subuser -->
+            var avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(selectedSubUser.UserName)}&background=random";
+
+            <div class="subuser-card text-center">
+                <div class="subuser-avatar">
+                    <img src="@avatarUrl" alt="@selectedSubUser.UserName" class="avatar-img" />
+                </div>
+
+                @if (isEditing)
+                {
+                    <input class="form-control text-center mt-2"
+                           @bind="editName"
+                           @bind:event="oninput"
+                           placeholder="Enter new name" />
+                    <div class="mt-2">
+                        <button class="btn btn-success btn-sm me-2" @onclick="SaveEditedName">Save</button>
+                        <button class="btn btn-outline-secondary btn-sm" @onclick="() => isEditing = false">Cancel</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="mt-2 fw-semibold">@selectedSubUser.UserName</p>
+                    <button class="btn btn-outline-primary btn-sm" @onclick="() => StartEditing()">Edit Name</button>
+                    
+                }
+            </div>
+        }
+        else if (subUsers != null && subUsers.Count > 0)
+        {
+            @foreach (var user in subUsers)
+            {
+                var avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.UserName)}&background=random";
+
+                <div class="subuser-card text-center" style="cursor:pointer;"
+                     @onclick="() => SelectSubUser(user)">
+                    <div class="subuser-avatar bg-gradient">
+                        <img src="@avatarUrl" alt="@user.UserName" class="avatar-img" />
+                    </div>
+                    <p class="mt-2 fw-semibold">@user.UserName</p>
+                </div>
+            }
+        }
+
+        @if (!IsAddDisabled && selectedSubUser == null)
+        {
+            <div class="subuser-card add-card text-center" @onclick="() => showAddForm = !showAddForm">
+                <div class="subuser-avatar add-avatar">
+                    <span class="plus-icon">+</span>
+                </div>
+                <p class="mt-2 fw-semibold text-secondary">Add User</p>
+            </div>
+        }
+    </div>
+
+    @if (showAddForm)
+    {
+        <div class="modal-overlay" @onclick="() => showAddForm = false"></div>
+        <div class="modal-content">
+            <EditForm Model="@newSubUser" OnValidSubmit="AddSubUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <h5 class="text-center mb-3">Add New Sub User</h5>
+
+                <div class="form-group mb-3">
+                    <InputText id="username" @bind-Value="newSubUser.UserName" class="form-control text-center" placeholder="Enter sub user name" />
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-primary px-4" type="submit">Add</button>
+                    <button class="btn btn-outline-secondary px-4" type="button" @onclick="() => showAddForm = false">Cancel</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+}
+
+@code {
+    private bool showAddForm = false;
+    private bool isEditing = false;
+    private string editName = string.Empty;
+
+    [Parameter]
+    public Guid UserId { get; set; }
+
+    private Guid SubscribedPlansId { get; set; }
+    private List<SubUserDTO> subUsers = new();
+    private SubUserDTO selectedSubUser;
+    private SubUsersRequestDTO newSubUser = new();
+
+    private bool isSubscribed = false;
+    private bool isLoading = true;
+
+    public void Getstarted() => NavManager.NavigateTo("/Homes");
+
+    private async Task SelectSubUser(SubUserDTO user)
+    {
+        selectedSubUser = user;
+        await LocalStorage.SetItemAsync("ActiveSubUserId", user.SubUserId);
+        await LocalStorage.SetItemAsync("ActiveSubUserName", user.UserName);
+        UserState.ActiveSubUserName = user.UserName;
+        StateHasChanged();
+
+        NavManager.NavigateTo("/Homes", true);
+    }
+
+    private async Task LoadSelectedSubUser()
+    {
+        var subUserId = await LocalStorage.GetItemAsync<Guid>("ActiveSubUserId");
+
+        if (subUserId != Guid.Empty)
+        {
+            selectedSubUser = subUsers.FirstOrDefault(s => s.SubUserId == subUserId);
+        }
+    }
+
+    private async Task StartEditing()
+    {
+        isEditing = true;
+        editName = selectedSubUser.UserName;
+    }
+
+    private async Task SaveEditedName()
+    {
+        if (string.IsNullOrWhiteSpace(editName)) return;
+
+        selectedSubUser.UserName = editName;
+
+        var updateModel = new UpdateSubUserDTO
+            {
+                UserName = editName
+            };
+
+        var response = await Http.PutAsJsonAsync($"https://localhost:7196/api/SubUsers/{selectedSubUser.SubUserId}", updateModel);
+        if (response.IsSuccessStatusCode)
+        {
+            selectedSubUser.UserName = editName;
+            isEditing = false;
+            await LocalStorage.SetItemAsync("ActiveSubUserName", editName);
+            UserState.ActiveSubUserName = editName;
+            StateHasChanged();
+            NavManager.NavigateTo("/Homes", true);
+        }
+    }
+
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubscribedPlanId();
+        await LoadSubUsers();
+        await LoadSelectedSubUser();
+        isLoading = false;
+    }
+
+    private async Task LoadSubscribedPlanId()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<SubscribedPlanResponse>($"https://localhost:7196/api/SubscribedPlan/{UserId}");
+            if (response == null || response.SubscribedPlansId == Guid.Empty)
+            {
+                isSubscribed = false;
+                SubscribedPlansId = Guid.Empty;
+            }
+            else
+            {
+                isSubscribed = true;
+                SubscribedPlansId = response.SubscribedPlansId;
+            }
+        }
+        catch
+        {
+            isSubscribed = false;
+            SubscribedPlansId = Guid.Empty;
+        }
+    }
+
+    private async Task LoadSubUsers()
+    {
+        try
+        {
+            subUsers = await Http.GetFromJsonAsync<List<SubUserDTO>>($"https://localhost:7196/api/SubUsers/{UserId}");
+        }
+        catch
+        {
+            subUsers = new List<SubUserDTO>();
+        }
+    }
+
+    private async Task AddSubUser()
+    {
+        if (subUsers.Count >= 3) return;
+
+        newSubUser.UserId = UserId;
+        newSubUser.SubscribedPlansId = SubscribedPlansId;
+
+        var response = await Http.PostAsJsonAsync("https://localhost:7196/api/SubUsers", newSubUser);
+        if (response.IsSuccessStatusCode)
+        {
+            newSubUser.UserName = string.Empty;
+            showAddForm = false;
+            await LoadSubUsers();
+        }
+    }
+
+    private bool IsAddDisabled => subUsers.Count >= 3;
+}

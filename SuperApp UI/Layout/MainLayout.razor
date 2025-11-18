@@ -1,0 +1,156 @@
+﻿@using Blazored.LocalStorage
+@using SuperApp_UI.Services
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@implements IDisposable
+@inject UserStateService UserState
+
+<div class="page">
+    <main>
+        <div class="top-row px-4">
+            <!-- Left: Logo and App name -->
+            <div class="logo-section">
+                <img src="https://i.pinimg.com/originals/02/52/7f/02527f4a639ca2a65fa9c17c7bb5b102.png" alt="Logo" />
+                <div class="logo-text">
+                    <h2>StreamFinder</h2>
+                    <h4>Super App</h4>
+                </div>
+            </div>
+
+            <!-- Center: Navigation Links -->
+            <div class="top-row-center">
+                @if (isLoggedIn)
+                {
+                    <a href="/Homes">Home</a>
+                    <a href="/Plan">Plans</a>
+                    <a href="/about">About</a>
+                    <a href="/contact">Contact</a>
+                }
+            </div>
+
+            <!-- Right: SubUser Info + Logout -->
+            <div class="top-rowside d-flex align-items-center gap-3">
+                @if (isLoggedIn)
+                {
+                    @if (!string.IsNullOrEmpty(activeSubUserName))
+                    {
+                        <div class="d-flex align-items-center user-badge" title="Active profile">
+                            <img src="@avatarUrl" class="avatar-mini me-2" alt="@activeSubUserName" />
+                            <span>@activeSubUserName</span>
+                        </div>
+                    }
+                    <a href="#" @onclick="Logout">Logout</a>
+                }
+                else
+                {
+                    <a href="/SignIn">Register</a>
+                    <a href="/login">Login</a>
+                }
+            </div>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; @DateTime.Now.Year StreamFinder | All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="https://www.privacypolicygenerator.info/">Privacy Policy</a>
+                    <a href="https://www.privacypolicygenerator.info/">Terms</a>
+                    <a href="/help-support">Help</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://x.com/login"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </footer>
+    </main>
+</div>
+
+@code {
+    private bool isLoggedIn = false;
+    private string? activeSubUserName = string.Empty;
+    private string avatarUrl = string.Empty;
+
+    private bool hasLoaded = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        
+        if (!hasLoaded)
+        {
+            hasLoaded = true;
+            await LoadActiveSubUserAsync();
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        AuthenticationStateProvider.AuthenticationStateChanged += AuthStateChanged;
+        await CheckLoginStatusAsync();
+        await LoadActiveSubUserAsync();
+        // 🔹 Subscribe to global state changes
+        UserState.OnChange += async () =>
+        {
+            activeSubUserName = UserState.ActiveSubUserName;
+            if (!string.IsNullOrEmpty(activeSubUserName))
+            {
+                avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(activeSubUserName)}&background=random";
+            }
+            await InvokeAsync(StateHasChanged);
+        };
+    }
+
+    private async Task CheckLoginStatusAsync()
+    {
+        var token = await LocalStorage.GetItemAsStringAsync("jwtToken");
+        isLoggedIn = !string.IsNullOrEmpty(token);
+        StateHasChanged();
+    }
+
+    private async Task LoadActiveSubUserAsync()
+    {
+        activeSubUserName = await LocalStorage.GetItemAsync<string>("ActiveSubUserName");
+        UserState.OnChange += StateHasChanged;
+        if (!string.IsNullOrEmpty(activeSubUserName))
+        {
+            avatarUrl = $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(activeSubUserName)}&background=random";
+        }
+    }
+
+    private async void AuthStateChanged(Task<AuthenticationState> task)
+    {
+        await CheckLoginStatusAsync();
+        await LoadActiveSubUserAsync();
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("jwtToken");
+        await LocalStorage.RemoveItemAsync("userId");
+        await LocalStorage.RemoveItemAsync("ActiveSubUserName");
+        await LocalStorage.RemoveItemAsync("ActiveSubUserId");
+
+        if (AuthenticationStateProvider is CustomAuthStateProvider customProvider)
+        {
+            await customProvider.MarkUserAsLoggedOutAsync();
+        }
+
+        isLoggedIn = false;
+        NavigationManager.NavigateTo("/login", true);
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= AuthStateChanged;
+    }
+}

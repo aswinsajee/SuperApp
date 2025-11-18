@@ -1,0 +1,21 @@
+# Ignore Visual Studio files
+.vs/
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+
+# Publish outputs
+wwwroot/
+
+# Logs
+*.log
+
+# Rider & VSCode config
+.idea/
+.vscode/
+
+# Temp files
+*.tmp
