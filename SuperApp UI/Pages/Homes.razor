@@ -1,0 +1,57 @@
+﻿@page "/Homes"
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JS
+
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>All your favorite OTTs.<br />One simple subscription.</h1>
+        <button class="cta-button" @onclick="Getstarted">Get Started →</button>
+    </div>
+
+    <div class="features">
+        <NavLink class="feature-card" href="/Plan">
+            <div class="icon">⬛</div>
+            <h3>Combine All Platforms</h3>
+            <p>Access multiple streaming services under one plan</p>
+        </NavLink>
+
+        <NavLink class="feature-card" href="@($"/SubUsers/{UserId}")">
+            <div class="icon">👥</div>
+            <h3>Share with 3 People</h3>
+            <p>Invite friends or family to enjoy a shared plan</p>
+
+        </NavLink>
+
+        <NavLink class="feature-card" href="/Offers">
+            <div class="icon">💰</div>
+            <h3>One Payment, Multiple Benefits</h3>
+            <p>Get the best value with a single subscription</p>
+        </NavLink>
+    </div>
+</section>
+
+
+
+@code {
+    private string? UserId;
+    protected override async Task OnInitializedAsync()
+    {
+        UserId = await LocalStorage.GetItemAsync<string>("userId");
+    }
+    public void Getstarted()
+    {
+        Navigation.NavigateTo("/Plan");
+        
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("blockBackButton");
+        }
+    }
+
+}
