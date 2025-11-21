@@ -1,0 +1,88 @@
+﻿.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #3a0647, #052767);
+    background-size: cover;
+    padding: 1rem;
+}
+
+.login-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-card h2 {
+        font-weight: 600;
+        color: #333;
+    }
+
+.form-control {
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007BFF, #6610f2);
+    border: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #0056b3, #520dc2);
+        transform: scale(1.03);
+    }
+
+/* Popup notification style */
+.popup-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    animation: fadeInOut 3s ease forwards;
+}
+
+.popup-success {
+    background-color: #28a745;
+}
+
+.popup-error {
+    background-color: #dc3545;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    10% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    90% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
