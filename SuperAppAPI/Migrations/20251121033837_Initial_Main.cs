@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace SuperAppAPI.Migrations.SuperAppDb
+namespace SuperAppAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class SuperAppDbContextMigration : Migration
+    public partial class Initial_Main : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,11 +15,11 @@ namespace SuperAppAPI.Migrations.SuperAppDb
                 name: "OTTPlatforms",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    Url = table.Column<string>(type: "TEXT", nullable: false),
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -30,9 +30,9 @@ namespace SuperAppAPI.Migrations.SuperAppDb
                 name: "PayementMethods",
                 columns: table => new
                 {
-                    PayementMethodsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MethodName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MethodDescription = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    PayementMethodsId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    MethodName = table.Column<string>(type: "TEXT", nullable: false),
+                    MethodDescription = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -43,11 +43,12 @@ namespace SuperAppAPI.Migrations.SuperAppDb
                 name: "Plans",
                 columns: table => new
                 {
-                    PlansDomainId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PlanName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PlanDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cost = table.Column<double>(type: "float", nullable: false),
-                    Validity = table.Column<int>(type: "int", nullable: false)
+                    PlansDomainId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    PlanName = table.Column<string>(type: "TEXT", nullable: false),
+                    PlanDescription = table.Column<string>(type: "TEXT", nullable: false),
+                    Cost = table.Column<double>(type: "REAL", nullable: false),
+                    Validity = table.Column<int>(type: "INTEGER", nullable: false),
+                    PlatformIds = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -55,16 +56,31 @@ namespace SuperAppAPI.Migrations.SuperAppDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubUsers",
+                columns: table => new
+                {
+                    SubUserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SubscribedPlansId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserName = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubUsers", x => x.SubUserId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payements",
                 columns: table => new
                 {
-                    PayementsID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PayementMethodsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PlansDomainId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Cost = table.Column<double>(type: "float", nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PayementsID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    PayementMethodsId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    PlansDomainId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Cost = table.Column<double>(type: "REAL", nullable: false),
+                    PaymentDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Remarks = table.Column<string>(type: "TEXT", nullable: true),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -87,15 +103,19 @@ namespace SuperAppAPI.Migrations.SuperAppDb
                 name: "SubscribedPlans",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SubscribedPlansId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PlansDomainId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Cost = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    SubscribedPlansId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    PlansDomainId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Cost = table.Column<double>(type: "REAL", nullable: false),
+                    Status = table.Column<string>(type: "TEXT", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    PlanName = table.Column<string>(type: "TEXT", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Validity = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubscribedPlans", x => x.Id);
+                    table.PrimaryKey("PK_SubscribedPlans", x => x.SubscribedPlansId);
                     table.ForeignKey(
                         name: "FK_SubscribedPlans_Plans_PlansDomainId",
                         column: x => x.PlansDomainId,
@@ -131,6 +151,9 @@ namespace SuperAppAPI.Migrations.SuperAppDb
 
             migrationBuilder.DropTable(
                 name: "SubscribedPlans");
+
+            migrationBuilder.DropTable(
+                name: "SubUsers");
 
             migrationBuilder.DropTable(
                 name: "PayementMethods");

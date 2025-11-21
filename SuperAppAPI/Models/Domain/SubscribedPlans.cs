@@ -1,7 +1,10 @@
-﻿namespace SuperAppAPI.Models.Domain
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SuperAppAPI.Models.Domain
 {
     public class SubscribedPlans
     {
+        [Key]
         public Guid SubscribedPlansId { get; set; } //Primary key
 
         public Guid UserId { get; set; } //UserId from authDB [SuperAppAuthDb].[dbo].[AspNetUsers] table //Foreign Key

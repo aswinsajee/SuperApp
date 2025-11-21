@@ -56,9 +56,13 @@ namespace SuperAppAPI.Repositories
         {
             try
             {
-                var subUsers = await superAppDbContext.SubUsers
+                //SQLLite doent support the SP
+                /*var subUsers = await superAppDbContext.SubUsers
                     .FromSqlRaw("EXEC GetAllSubUsersByUserId @UserId = {0}", UserId)
-                    .ToListAsync();
+                    .ToListAsync();*/
+                var subUsers = await superAppDbContext.SubUsers
+                .Where(s => s.UserId == UserId)
+                .ToListAsync();
 
                 if (subUsers == null || !subUsers.Any())
                 {
