@@ -80,10 +80,10 @@ else
             }
             
             // 1️⃣ Fetch plan details
-            plan = await Http.GetFromJsonAsync<PlanDTO>($"https://localhost:7196/api/Plans/{planId}");
+            plan = await Http.GetFromJsonAsync<PlanDTO>($"api/Plans/{planId}");
 
             // 2️⃣ Fetch available payment methods
-            paymentMethods = await Http.GetFromJsonAsync<List<PaymentMethodDTO>>("https://localhost:7196/api/Payement");
+            paymentMethods = await Http.GetFromJsonAsync<List<PaymentMethodDTO>>("api/Payement");
         }
         catch (Exception ex)
         {
@@ -109,7 +109,7 @@ else
             Remarks = remarks
     };
 
-        var response = await Http.PostAsJsonAsync("https://localhost:7196/api/Payement", paymentRequest);
+        var response = await Http.PostAsJsonAsync("api/Payement", paymentRequest);
 
         if (response.IsSuccessStatusCode)
         {

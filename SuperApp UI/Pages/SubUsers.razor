@@ -159,7 +159,7 @@ else
                 UserName = editName
             };
 
-        var response = await Http.PutAsJsonAsync($"https://localhost:7196/api/SubUsers/{selectedSubUser.SubUserId}", updateModel);
+        var response = await Http.PutAsJsonAsync($"api/SubUsers/{selectedSubUser.SubUserId}", updateModel);
         if (response.IsSuccessStatusCode)
         {
             selectedSubUser.UserName = editName;
@@ -185,7 +185,7 @@ else
     {
         try
         {
-            var response = await Http.GetFromJsonAsync<SubscribedPlanResponse>($"https://localhost:7196/api/SubscribedPlan/{UserId}");
+            var response = await Http.GetFromJsonAsync<SubscribedPlanResponse>($"api/SubscribedPlan/{UserId}");
             if (response == null || response.SubscribedPlansId == Guid.Empty)
             {
                 isSubscribed = false;
@@ -208,7 +208,7 @@ else
     {
         try
         {
-            subUsers = await Http.GetFromJsonAsync<List<SubUserDTO>>($"https://localhost:7196/api/SubUsers/{UserId}");
+            subUsers = await Http.GetFromJsonAsync<List<SubUserDTO>>($"api/SubUsers/{UserId}");
         }
         catch
         {
@@ -223,7 +223,7 @@ else
         newSubUser.UserId = UserId;
         newSubUser.SubscribedPlansId = SubscribedPlansId;
 
-        var response = await Http.PostAsJsonAsync("https://localhost:7196/api/SubUsers", newSubUser);
+        var response = await Http.PostAsJsonAsync("api/SubUsers", newSubUser);
         if (response.IsSuccessStatusCode)
         {
             newSubUser.UserName = string.Empty;
