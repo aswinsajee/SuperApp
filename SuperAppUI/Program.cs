@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
-using SuperApp_UI;
-using SuperApp_UI.Services; // your custom service namespace
+using SuperAppUI;
+using SuperAppUI.Services; // your custom service namespace
 using Microsoft.Extensions.Configuration;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
