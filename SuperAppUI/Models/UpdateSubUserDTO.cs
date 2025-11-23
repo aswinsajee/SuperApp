@@ -1,4 +1,4 @@
-﻿namespace SuperApp_UI.Models
+﻿namespace SuperAppUI.Models
 {
     public class UpdateSubUserDTO
     {

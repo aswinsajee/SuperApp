@@ -1,7 +1,7 @@
-﻿using SuperApp_UI.Validator;
+﻿using SuperAppUI.Validator;
 using System.ComponentModel.DataAnnotations;
 
-namespace SuperApp_UI.Models
+namespace SuperAppUI.Models
 {
     public class RegisterRequestDTO
     {

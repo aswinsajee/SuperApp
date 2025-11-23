@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SuperApp_UI.Models
+namespace SuperAppUI.Models
 {
     public class ContactForm
     {

@@ -1,4 +1,4 @@
-﻿namespace SuperApp_UI.Services
+﻿namespace SuperAppUI.Services
 {
     public class UserStateService
     {
