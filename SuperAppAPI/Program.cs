@@ -15,12 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazor",
-        policy => policy
-            .WithOrigins("https://localhost:5001", "http://localhost:5000", "https://localhost:7196", "https://victorious-beach-0a619731e.3.azurestaticapps.net")
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod());
+    options.AddPolicy("AllowBlazor", policy =>
+         policy.WithOrigins(
+                 "https://victorious-beach-0a619731e.3.azurestaticapps.net",
+                 "https://localhost:5001",
+                 "http://localhost:5000",
+                 "https://localhost:7196")
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials());
 });
 
 builder.Services.AddControllers(); 
@@ -84,7 +87,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 app.UseCors("AllowBlazor");
-app.UseCors("AllowAzureUI");
 
 
 // Configure the HTTP request pipeline.
