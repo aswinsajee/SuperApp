@@ -13,18 +13,28 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // Add CORS policy
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazor", policy =>
-         policy.WithOrigins(
-                 "https://victorious-beach-0a619731e.3.azurestaticapps.net",
-                 "https://localhost:5001",
-                 "http://localhost:5000",
-                 "https://localhost:7196")
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials());
+    options.AddPolicy("TempAllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowBlazor", policy =>
+//         policy.WithOrigins(
+//                 "https://victorious-beach-0a619731e.3.azurestaticapps.net",
+//                 "https://localhost:5001",
+//                 "http://localhost:5000",
+//                 "https://localhost:7196")
+//               .AllowAnyHeader()
+//               .AllowAnyMethod()
+//               .AllowCredentials());
+//});
 
 builder.Services.AddControllers(); 
 builder.Services.AddHttpContextAccessor();
@@ -86,7 +96,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-app.UseCors("AllowBlazor");
+//app.UseCors("AllowBlazor");
+app.UseCors("TempAllowAll");
 
 
 // Configure the HTTP request pipeline.
