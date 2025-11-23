@@ -16,7 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazor",
-        policy => policy 
+        policy => policy
+            .WithOrigins("https://localhost:5001", "http://localhost:5000", "https://localhost:7196")
             .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod());
@@ -30,10 +31,10 @@ builder.Services.AddSwaggerGen();
 
 //Connection to DB
 builder.Services.AddDbContext<SuperAppAuthDBContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
+options.UseSqlite(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
 
 builder.Services.AddDbContext<SuperAppDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
+options.UseSqlite(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
 
 builder.Services.AddScoped<IPlatformRepository, SQLPlatformRepository>(); //inject the interface and implement the repositor
 builder.Services.AddScoped<IPayementRepository, SQLPayementRepository>(); //inject the interface and implement the repositor

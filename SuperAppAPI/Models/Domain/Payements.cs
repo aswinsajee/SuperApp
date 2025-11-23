@@ -1,7 +1,10 @@
-﻿namespace SuperAppAPI.Models.Domain
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SuperAppAPI.Models.Domain
 {
     public class Payements
     {
+        [Key]
         public int PayementsID { get; set; }
 
         public Guid PayementMethodsId { get;set; }  //Foreign Key from payementMethod table
