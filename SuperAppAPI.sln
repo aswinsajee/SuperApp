@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperAppAPI", "SuperAppAPI\SuperAppAPI.csproj", "{2AD60E19-2A1F-4970-A7E8-861A6EC7B593}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperApp UI", "SuperApp UI\SuperApp UI.csproj", "{5C42C348-C997-4A5D-9E73-62EC7A8ABB17}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperAppUI", "SuperAppUI\SuperAppUI.csproj", "{5C42C348-C997-4A5D-9E73-62EC7A8ABB17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

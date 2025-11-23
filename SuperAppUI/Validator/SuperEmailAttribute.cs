@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SuperApp_UI.Validator
+namespace SuperAppUI.Validator
 {
     public class SuperEmailAttribute : ValidationAttribute
     {

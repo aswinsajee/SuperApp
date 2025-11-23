@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace SuperApp_UI.Services
+namespace SuperAppUI.Services
 {
     public class CustomAuthStateProvider : AuthenticationStateProvider
     {
