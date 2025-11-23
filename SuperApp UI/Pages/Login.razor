@@ -61,7 +61,7 @@
             await LocalStorage.RemoveItemAsync("jwtToken");
             await LocalStorage.RemoveItemAsync("userId");
 
-            var response = await Http.PostAsJsonAsync("https://localhost:7196/api/Auth/Login", loginModel);
+            var response = await Http.PostAsJsonAsync("api/Auth/Login", loginModel);
 
             if (response.IsSuccessStatusCode)
             {

@@ -122,7 +122,7 @@
                 Navigation.NavigateTo("/Login");
                 return;
             }
-            var response = await Http.GetAsync($"https://localhost:7196/api/SubscribedPlan/{Userid}");
+            var response = await Http.GetAsync($"api/SubscribedPlan/{Userid}");
             if (response.IsSuccessStatusCode)
             {
                 // Deserialize only if it's successful
@@ -133,7 +133,7 @@
             {
                 // No subscribed plan found → just fetch all plans
                 suscribedPlans = null;
-                plans = await Http.GetFromJsonAsync<List<PlanDTO>>("https://localhost:7196/api/Plans");
+                plans = await Http.GetFromJsonAsync<List<PlanDTO>>("api/Plans");
                 if (plans != null)
                     await LoadPlatformsForPlans();
             }
@@ -179,7 +179,7 @@
             {
                 try
                 {
-                    var platform = await Http.GetFromJsonAsync<PlatformDTO>($"https://localhost:7196/api/Platform/{id}");
+                    var platform = await Http.GetFromJsonAsync<PlatformDTO>($"api/Platform/{id}");
                     if (platform != null)
                         plan.Platforms.Add(platform);
                 }
@@ -199,7 +199,7 @@
                 return;
 
             // Step 1️⃣: Get the Plan details using the PlanDomainId
-            var plan = await Http.GetFromJsonAsync<PlanDTO>($"https://localhost:7196/api/Plans/{suscribedPlans.PlansDomainId}");
+            var plan = await Http.GetFromJsonAsync<PlanDTO>($"api/Plans/{suscribedPlans.PlansDomainId}");
             if (plan == null || string.IsNullOrEmpty(plan.PlatformIds))
                 return;
 
@@ -215,7 +215,7 @@
             {
                 try
                 {
-                    var platform = await Http.GetFromJsonAsync<PlatformDTO>($"https://localhost:7196/api/Platform/{id}");
+                    var platform = await Http.GetFromJsonAsync<PlatformDTO>($"api/Platform/{id}");
                     if (platform != null)
                         suscribedPlans.Platforms.Add(platform);
                 }
@@ -239,7 +239,7 @@
             suscribedPlans = null;
 
             // Fetch available plans from API
-            plans = await Http.GetFromJsonAsync<List<PlanDTO>>("https://localhost:7196/api/Plans");
+            plans = await Http.GetFromJsonAsync<List<PlanDTO>>("api/Plans");
 
             if (plans != null)
                 await LoadPlatformsForPlans();
