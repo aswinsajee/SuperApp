@@ -99,13 +99,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+// Auto-migrate only in production and with error handling
+if (app.Environment.IsProduction())
 {
-    var authDb = scope.ServiceProvider.GetRequiredService<SuperAppAuthDBContext>();
-    var mainDb = scope.ServiceProvider.GetRequiredService<SuperAppDbContext>();
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var authDb = scope.ServiceProvider.GetRequiredService<SuperAppAuthDBContext>();
+        var mainDb = scope.ServiceProvider.GetRequiredService<SuperAppDbContext>();
 
-    authDb.Database.Migrate();
-    mainDb.Database.Migrate();
+        authDb.Database.Migrate();
+        mainDb.Database.Migrate();
+
+        Console.WriteLine("Migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"MIGRATION FAILED: {ex.Message}");
+        // Don't crash the app — let it start anyway (you can fix later)
+    }
 }
 
 //app.UseCors("AllowBlazor");
