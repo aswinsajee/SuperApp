@@ -44,11 +44,31 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //Connection to DB
+//builder.Services.AddDbContext<SuperAppAuthDBContext>(options =>
+//options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
+
+//builder.Services.AddDbContext<SuperAppDbContext>(options =>
+//options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
+
+var connectionString = builder.Configuration.GetConnectionString("SuperAppConnectionString")
+    ?? builder.Configuration.GetConnectionString("SuperAppAuthConnectionString");
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    // Build from individual parts (Render-safe)
+    connectionString = $"Host={builder.Configuration["DB_HOST"]};" +
+                       $"Port={builder.Configuration["DB_PORT"]};" +
+                       $"Database={builder.Configuration["DB_NAME"]};" +
+                       $"Username={builder.Configuration["DB_USER"]};" +
+                       $"Password={builder.Configuration["DB_PASSWORD"]};" +
+                       "SSL Mode=Require;Trust Server Certificate=true";
+}
+
 builder.Services.AddDbContext<SuperAppAuthDBContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddDbContext<SuperAppDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IPlatformRepository, SQLPlatformRepository>(); //inject the interface and implement the repositor
 builder.Services.AddScoped<IPayementRepository, SQLPayementRepository>(); //inject the interface and implement the repositor
