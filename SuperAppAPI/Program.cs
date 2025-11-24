@@ -8,6 +8,7 @@ using SuperAppAPI.Mapping;
 using SuperAppAPI.Repositories;
 using System.Text;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -44,10 +45,10 @@ builder.Services.AddSwaggerGen();
 
 //Connection to DB
 builder.Services.AddDbContext<SuperAppAuthDBContext>(options =>
-options.UseSqlite(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppAuthConnectionString")));
 
 builder.Services.AddDbContext<SuperAppDbContext>(options =>
-options.UseSqlite(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
+options.UseNpgsql(builder.Configuration.GetConnectionString("SuperAppConnectionString")));
 
 builder.Services.AddScoped<IPlatformRepository, SQLPlatformRepository>(); //inject the interface and implement the repositor
 builder.Services.AddScoped<IPayementRepository, SQLPayementRepository>(); //inject the interface and implement the repositor
@@ -94,7 +95,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
     });
 
+
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var authDb = scope.ServiceProvider.GetRequiredService<SuperAppAuthDBContext>();
+    var mainDb = scope.ServiceProvider.GetRequiredService<SuperAppDbContext>();
+
+    authDb.Database.Migrate();
+    mainDb.Database.Migrate();
+}
 
 //app.UseCors("AllowBlazor");
 app.UseCors("TempAllowAll");
