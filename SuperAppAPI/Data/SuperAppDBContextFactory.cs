@@ -17,7 +17,7 @@ namespace SuperAppAPI.Data
 
             // Build options
             var optionsBuilder = new DbContextOptionsBuilder<SuperAppDbContext>();
-            optionsBuilder.UseSqlite(configuration.GetConnectionString("SuperAppConnectionString"));
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("SuperAppConnectionString"));
 
             return new SuperAppDbContext(optionsBuilder.Options);
         }
