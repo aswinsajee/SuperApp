@@ -5,6 +5,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using SuperAppAPI.Data;
 using SuperAppAPI.Mapping;
+using SuperAppAPI.Middleware;
 using SuperAppAPI.Repositories;
 using System.Text;
 
@@ -108,6 +109,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+//Global logging
+app.UseExceptionLogging();
 // Auto-migrate only in production and with error handling
 if (app.Environment.IsProduction())
 {

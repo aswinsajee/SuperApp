@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IJSRuntime JS
 
 <div class="superplan-page">
     <h3 class="superplan-heading">Available Plans</h3>
@@ -139,13 +140,18 @@
             }
             else
             {
-                Console.WriteLine($"Unexpected API error: {response.StatusCode}");
+                
+
+                await JS.InvokeVoidAsync("showPopup", $"User has not purchased any plan", "error");
             }
             
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading plans: {ex.Message}");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
             plans = new List<PlanDTO>();
         }
     }
@@ -183,9 +189,12 @@
                     if (platform != null)
                         plan.Platforms.Add(platform);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    Console.WriteLine($"Failed to fetch platform {id}");
+                    //Logging client server error through API end Point
+                    await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+                    await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
                 }
             }
         }
@@ -221,13 +230,19 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to fetch platform {id}: {ex.Message}");
+                    //Logging client server error through API end Point
+                    await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+                    await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading subscribed plan platforms: {ex.Message}");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
         }
     }
 
@@ -248,7 +263,10 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading plans for new purchase: {ex.Message}");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
         }
     }
 

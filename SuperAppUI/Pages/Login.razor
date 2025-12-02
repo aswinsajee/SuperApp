@@ -91,7 +91,10 @@
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("showPopup", $"Error: {ex.Message}", "error");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
         }
     }
 }

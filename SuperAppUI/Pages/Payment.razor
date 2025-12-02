@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IJSRuntime JS
 
 <link href="css/payment-page.css" rel="stylesheet" />
 
@@ -40,7 +41,7 @@ else
             @foreach (var method in paymentMethods)
             {
                 <button class="list-group-item list-group-item-action"
-                @onclick="() => SelectPaymentMethod(method)">
+                        @onclick="() => SelectPaymentMethod(method)">
                     @method.MethodName
                 </button>
             }
@@ -66,7 +67,7 @@ else
     private PaymentMethodDTO? selectedMethod;
     private string? remarks;
 
-    
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,7 +79,7 @@ else
                 Navigation.NavigateTo("/Login");
                 return;
             }
-            
+
             // 1️⃣ Fetch plan details
             plan = await Http.GetFromJsonAsync<PlanDTO>($"api/Plans/{planId}");
 
@@ -87,7 +88,9 @@ else
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading data: {ex.Message}");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
         }
     }
 
@@ -96,28 +99,42 @@ else
         selectedMethod = method;
     }
 
+
     private async Task ConfirmPayment()
     {
-        var userId = await LocalStorage.GetItemAsync<string>("userId");
-        // You can call your payment API here
-        var paymentRequest = new
+        try
         {
-            PayementMethodsId = selectedMethod.PayementMethodsId,
-            PlansDomainId = plan.PlansDomainId,
-            Amount = plan.Cost,
-            UserId = userId,
-            Remarks = remarks
-    };
+            var userId = await LocalStorage.GetItemAsync<string>("userId");
+            // You can call your payment API here
+            var paymentRequest = new
+            {
+                PayementMethodsId = selectedMethod.PayementMethodsId,
+                PlansDomainId = plan.PlansDomainId,
+                Amount = plan.Cost,
+                UserId = userId,
+                Remarks = remarks
+            };
 
-        var response = await Http.PostAsJsonAsync("api/Payement", paymentRequest);
+            var response = await Http.PostAsJsonAsync("api/Payement", paymentRequest);
 
-        if (response.IsSuccessStatusCode)
-        {
-            Navigation.NavigateTo("/Plan");
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/Plan");
+            }
+            else
+            {
+                Console.WriteLine("Payment failed!");
+            }
         }
-        else
+
+        catch (Exception ex)
         {
-            Console.WriteLine("Payment failed!");
+            //Logging client server error through API end Point
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+            await JS.InvokeVoidAsync("showPopup", $"Something went wrong. Please try again.", "error");
         }
+
     }
+
+
 }

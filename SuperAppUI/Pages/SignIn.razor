@@ -12,6 +12,7 @@
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+            <!-- Email -->
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <InputText @bind-Value="registerModel.UserName" class="form-control" placeholder="Someone@super.com" />
@@ -21,18 +22,33 @@
                 }
             </div>
 
+            <!-- Password -->
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <InputText @bind-Value="registerModel.Password" type="password" class="form-control" placeholder="Enter your Password" />
+                <InputText @bind-Value="registerModel.Password"
+                           type="password" class="form-control" placeholder="Enter your password" />
                 @if (!string.IsNullOrEmpty(passwordError))
                 {
                     <p class="text-danger small">@passwordError</p>
                 }
             </div>
 
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <InputText @bind-Value="confirmPassword"
+                           type="password" class="form-control" placeholder="Re-enter your password" />
+                @if (!string.IsNullOrEmpty(confirmPasswordError))
+                {
+                    <p class="text-danger small">@confirmPasswordError</p>
+                }
+            </div>
+
+            <!-- Phone No -->
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
-                <InputText @bind-Value="registerModel.PhoneNumber" class="form-control" maxlength="10" placeholder="Enter your phone number" />
+                <InputText @bind-Value="registerModel.PhoneNumber" class="form-control"
+                           maxlength="10" placeholder="Enter your phone number" />
                 @if (!string.IsNullOrEmpty(phoneError))
                 {
                     <p class="text-danger small">@phoneError</p>
@@ -43,64 +59,75 @@
         </EditForm>
 
         <div class="text-center mt-3">
-            <p>
-                Already have an account?
-                <NavLink href="/Login">Login</NavLink>
-            </p>
+            <p>Already have an account? <NavLink href="/Login">Login</NavLink></p>
         </div>
     </div>
 </div>
 
 @code {
     private RegisterRequestDTO registerModel = new();
-    private string? message;
-    private string alertClass = "alert-info";
+    private string confirmPassword = string.Empty;
+
     private string? emailError;
     private string? passwordError;
+    private string? confirmPasswordError;
     private string? phoneError;
 
     private async Task HandleRegister()
     {
         try
         {
-
-            //Validate Email
-
+            // ---- Email validation ---
             if (string.IsNullOrWhiteSpace(registerModel.UserName))
             {
-                emailError = "Email field cannot be empty";
-    
+                emailError = "Email cannot be empty.";
                 return;
             }
             emailError = null;
 
-            //Validate Passwod
+            // ----- Password validation ---
             if (string.IsNullOrWhiteSpace(registerModel.Password))
             {
-                passwordError = "Password field cannot be empty.";
-                
+                passwordError = "Password cannot be empty.";
+                return;
+            }
+
+            if (!PasswordIsValid(registerModel.Password))
+            {
+                passwordError = "Password must contain 1 uppercase, 1 number, and 1 special character.";
                 return;
             }
             passwordError = null;
 
-            // Validate phone number (10 digits)
-            if (string.IsNullOrWhiteSpace(registerModel.PhoneNumber) || registerModel.PhoneNumber.Length != 10)
+            // ----- Confirm password validation ---------
+            if (confirmPassword != registerModel.Password)
+            {
+                confirmPasswordError = "Passwords do not match.";
+                return;
+            }
+            confirmPasswordError = null;
+
+            //------- Phone validation ---------
+            if (string.IsNullOrWhiteSpace(registerModel.PhoneNumber) ||
+                registerModel.PhoneNumber.Length != 10)
             {
                 phoneError = "Phone number must be exactly 10 digits.";
-                
                 return;
             }
             phoneError = null;
 
-
-            // Assign default role
+            // default role
             registerModel.Roles = new List<string> { "User" };
 
+            // Send ONLY main password to API
             var response = await Http.PostAsJsonAsync("api/Auth/Register", registerModel);
 
             if (response.IsSuccessStatusCode)
             {
-                await JS.InvokeVoidAsync("showPopup", "Registration successful 🎉 Redirecting to login...", "success");
+                await JS.InvokeVoidAsync("showPopup",
+                    "Registration successful 🎉 Redirecting to login...",
+                    "success");
+
                 await Task.Delay(2000);
                 Navigation.NavigateTo("/Login", true);
             }
@@ -112,7 +139,18 @@
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("showPopup", $"Error: {ex.Message}", "error");
+            await Http.PostAsJsonAsync("api/ClientLogging/LogClientError", ex.ToString());
+            await JS.InvokeVoidAsync("showPopup", "Something went wrong. Please try again.", "error");
         }
+    }
+
+    // Password validation method
+    private bool PasswordIsValid(string password)
+    {
+        bool hasUpper = password.Any(char.IsUpper);
+        bool hasDigit = password.Any(char.IsDigit);
+        bool hasSpecial = password.Any(ch => !char.IsLetterOrDigit(ch));
+
+        return hasUpper && hasDigit && hasSpecial;
     }
 }

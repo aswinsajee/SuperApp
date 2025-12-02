@@ -68,5 +68,11 @@ namespace SuperAppAPI.Controllers
             return Ok(updatedSubUser);
         }
 
+        [HttpGet("test-error")]
+        public IActionResult TestError()
+        {
+            throw new Exception("This is a test exception");
+        }
+
     }
 }
